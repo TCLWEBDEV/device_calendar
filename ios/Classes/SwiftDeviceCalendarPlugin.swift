@@ -182,7 +182,15 @@ public class SwiftDeviceCalendarPlugin: NSObject, FlutterPlugin {
                 result(calendar.calendarIdentifier)
             }
             else {
-                result(FlutterError(code: self.genericError, message: "Local calendar was not found.", details: nil))
+                guard let defaultSource = eventStore.defaultCalendarForNewEvents?.source else {
+                    result(FlutterError(code: self.genericError, message: "Default calendar was not found.", details: nil))
+                    return
+                }
+
+                calendar.source = defaultSource;
+
+                try eventStore.saveCalendar(calendar, commit: true)
+                result(calendar.calendarIdentifier)
             }
         }
         catch {
